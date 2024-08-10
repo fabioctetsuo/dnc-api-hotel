@@ -18,6 +18,11 @@ export class HotelsRepositories implements IHotelRepository {
     return this.prisma.hotel.findUnique({
       where: { id: Number(id) },
       include: { owner: true },
+    }).then(hotel => {
+      if (hotel.owner.avatar) {
+        hotel.owner.avatar = `${process.env.APP_API_URL}/user-avatar/${hotel.owner.avatar}`
+      }
+      return hotel;
     });
   }
   findHotelByName(name: string): Promise<Hotel[] | null> {
@@ -31,6 +36,13 @@ export class HotelsRepositories implements IHotelRepository {
       take: limit,
       skip: offSet,
       include: { owner: true },
+    }).then((hotels) => {
+      hotels.forEach(hotel => {
+        if (hotel.owner.avatar) {
+          hotel.owner.avatar = `${process.env.APP_API_URL}/user-avatar/${hotel.owner.avatar}`
+        }
+      })
+      return hotels;
     });
   }
 
