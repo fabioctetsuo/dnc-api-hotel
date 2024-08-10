@@ -12,7 +12,14 @@ export class ReservationRepository implements IReservationRepository {
   }
 
   findById(id: number): Promise<Reservation> {
-    return this.prisma.reservation.findUnique({ where: { id } });
+    return this.prisma.reservation.findUnique({ where: { id }, include: {
+      user: true
+    } }).then((reservation) => {
+      if (reservation.user.avatar) {
+        reservation.user.avatar = `${process.env.APP_API_URL}/user-avatar/${reservation.user.avatar}`
+      }
+      return reservation
+    });
   }
   findAll(): Promise<Reservation[]> {
     return this.prisma.reservation.findMany();
